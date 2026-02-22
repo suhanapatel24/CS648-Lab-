@@ -1,0 +1,88 @@
+"use strict";
+
+let employees = [];
+
+window.addEventListener("load", init);
+
+function init() {
+    if (localStorage.getItem("employees")) {
+        employees = JSON.parse(localStorage.getItem("employees"));
+    } else {
+        employees = [
+            [1001, "John Smith", 1234, "john@company.com", "Sales"],
+            [1002, "Jane Doe", 2345, "jane@company.com", "Marketing"],
+            [1003, "Mike Johnson", 3456, "mike@company.com", "IT"],
+            [1004, "Sara Wilson", 4567, "sara@company.com", "HR"],
+            [1005, "David Brown", 5678, "david@company.com", "Finance"]
+        ];
+        saveToStorage();
+    }
+
+    buildGrid();
+    document.getElementById("addEmployee").addEventListener("click", addEmployee);
+}
+
+function buildGrid() {
+    const tbody = document.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    for (let employee of employees) {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${employee[0]}</td>
+            <td>${employee[1]}</td>
+            <td>${employee[2]}</td>
+            <td>${employee[3]}</td>
+            <td>${employee[4]}</td>
+            <td>
+                <button class="btn btn-danger btn-sm delete" data-id="${employee[0]}">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    }
+
+    document.querySelectorAll(".delete").forEach(button => {
+        button.addEventListener("click", deleteEmployee);
+    });
+
+    saveToStorage();
+}
+
+function addEmployee() {
+    const id = document.getElementById("empId").value;
+    const name = document.getElementById("name").value;
+    const extension = document.getElementById("extension").value;
+    const email = document.getElementById("email").value;
+    const department = document.getElementById("department").value;
+
+    if (!id || !name || !extension || !email || !department) {
+        alert("Please fill out all fields.");
+        return;
+    }
+
+    const newEmployee = [
+        parseInt(id),
+        name,
+        parseInt(extension),
+        email,
+        department
+    ];
+
+    employees.push(newEmployee);
+    buildGrid();
+    document.getElementById("empForm").reset();
+}
+
+function deleteEmployee() {
+    const id = parseInt(this.getAttribute("data-id"));
+    employees = employees.filter(employee => employee[0] !== id);
+    buildGrid();
+}
+
+function saveToStorage() {
+    localStorage.setItem("employees", JSON.stringify(employees));
+}
